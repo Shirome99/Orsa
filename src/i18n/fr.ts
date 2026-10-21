@@ -82,6 +82,24 @@ export const fr = {
     disclaimer:
       "Les estimations d'Orsa se basent uniquement sur les données que tu saisis. Elles ne remplacent pas l'avis d'un professionnel de santé.",
   },
+  calendar: {
+    previousMonth: 'Mois précédent',
+    nextMonth: 'Mois suivant',
+    backToToday: "Aujourd'hui",
+    legend: {
+      period: 'Règles enregistrées',
+      predictedPeriod: 'Règles estimées',
+      fertile: 'Fenêtre fertile estimée',
+      ovulation: 'Ovulation estimée',
+      hasLog: 'Journal rempli',
+    },
+    estimatesNote:
+      'Les jours estimés sont des projections calculées à partir de tes cycles passés. Ils peuvent varier.',
+    dayEmpty: 'Rien de noté ce jour-là.',
+    editDay: 'Saisir ou modifier ce jour',
+    futureDay: 'Ce jour est dans le futur : il ne peut pas encore être rempli.',
+    dayLabel: (date: string, details: string[]) => (details.length ? `${date}, ${details.join(', ')}` : date),
+  },
   prediction: {
     phases: {
       menstruation: 'Règles',

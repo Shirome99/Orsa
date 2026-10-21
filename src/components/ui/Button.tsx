@@ -10,8 +10,11 @@ interface ButtonProps {
   label: string;
   onPress: () => void;
   variant?: ButtonVariant;
+  size?: 'md' | 'sm';
   disabled?: boolean;
   accessibilityHint?: string;
+  /** Overrides the spoken name when the visible label is a symbol. */
+  accessibilityLabel?: string;
   style?: StyleProp<ViewStyle>;
 }
 
@@ -19,8 +22,10 @@ export function Button({
   label,
   onPress,
   variant = 'primary',
+  size = 'md',
   disabled,
   accessibilityHint,
+  accessibilityLabel,
   style,
 }: ButtonProps) {
   const { colors, spacing, radius } = useTheme();
@@ -37,6 +42,7 @@ export function Button({
       accessibilityRole="button"
       accessibilityState={{ disabled }}
       accessibilityHint={accessibilityHint}
+      accessibilityLabel={accessibilityLabel}
       disabled={disabled}
       onPress={onPress}
       style={({ pressed, hovered }: { pressed: boolean; hovered?: boolean }) => [
@@ -45,8 +51,8 @@ export function Button({
           borderColor: border,
           borderWidth: 1,
           borderRadius: radius.pill,
-          paddingVertical: spacing.md,
-          paddingHorizontal: spacing.xl,
+          paddingVertical: size === 'sm' ? spacing.sm : spacing.md,
+          paddingHorizontal: size === 'sm' ? spacing.md : spacing.xl,
           alignItems: 'center',
           opacity: disabled ? 0.5 : pressed ? 0.8 : hovered ? 0.9 : 1,
         },
