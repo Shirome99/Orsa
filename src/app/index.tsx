@@ -1,14 +1,16 @@
 import { useRouter } from 'expo-router';
+import { useMemo } from 'react';
 import { View } from 'react-native';
 
 import { DaySummary } from '@/components/DaySummary';
 import { PeriodActions } from '@/components/PeriodActions';
+import { PredictionCards } from '@/components/PredictionCard';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Screen } from '@/components/ui/Screen';
 import { useOrsaData } from '@/data/OrsaDataProvider';
-import { currentCycleStart, cycleDay } from '@/domain/cycle';
+import { predictCycle } from '@/domain/cycle';
 import { diffInDays } from '@/domain/dates';
 import { ongoingPeriod } from '@/domain/records';
 import { t } from '@/i18n';
@@ -20,15 +22,15 @@ export default function TodayScreen() {
   const { colors, spacing } = useTheme();
   const { data, todayDate } = useOrsaData();
 
-  const cycleStart = currentCycleStart(data.periods, todayDate);
+  const prediction = useMemo(() => predictCycle(data.periods, todayDate), [data.periods, todayDate]);
   const ongoing = ongoingPeriod(data.periods, todayDate);
 
   return (
     <Screen title={t.screens.today.title} subtitle={formatLongDate(todayDate)}>
-      {cycleStart ? (
+      {prediction ? (
         <Card tone="accent">
           <AppText variant="display" color={colors.primary}>
-            {t.today.cycleDay(cycleDay(cycleStart, todayDate))}
+            {t.today.cycleDay(prediction.cycleDay)}
           </AppText>
           {ongoing ? (
             <AppText variant="heading" color={colors.period}>
@@ -41,6 +43,8 @@ export default function TodayScreen() {
           <AppText>{t.today.noCycleBody}</AppText>
         </Card>
       )}
+
+      {prediction ? <PredictionCards prediction={prediction} /> : null}
 
       <Card title={t.period.title}>
         <PeriodActions date={todayDate} />

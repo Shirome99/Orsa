@@ -10,7 +10,8 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Screen } from '@/components/ui/Screen';
 import { useOrsaData } from '@/data/OrsaDataProvider';
-import { buildDayMarks } from '@/domain/calendarMarks';
+import { buildDayMarks, type PredictedRanges } from '@/domain/calendarMarks';
+import { predictCycle } from '@/domain/cycle';
 import { parseISODate, type ISODate } from '@/domain/dates';
 import { t } from '@/i18n';
 import { formatLongDate, formatMonthYear } from '@/i18n/format';
@@ -25,7 +26,19 @@ export default function CalendarScreen() {
   const [month, setMonth] = useState({ year: now.getFullYear(), index: now.getMonth() });
   const [selectedDate, setSelectedDate] = useState<ISODate>(todayDate);
 
-  const marks = useMemo(() => buildDayMarks(data.periods, data.logs, todayDate), [data.periods, data.logs, todayDate]);
+  const marks = useMemo(() => {
+    const prediction = predictCycle(data.periods, todayDate);
+    // Once the period is late, the old estimate is no longer drawn as if it were still valid.
+    const predicted: PredictedRanges =
+      prediction && prediction.daysLate === 0
+        ? {
+            nextPeriod: prediction.nextPeriodDays,
+            fertileWindow: prediction.fertileWindow,
+            ovulation: { start: prediction.ovulation.date, end: prediction.ovulation.date },
+          }
+        : {};
+    return buildDayMarks(data.periods, data.logs, todayDate, predicted);
+  }, [data.periods, data.logs, todayDate]);
 
   const shiftMonth = (delta: number) => {
     const target = new Date(month.year, month.index + delta, 1);

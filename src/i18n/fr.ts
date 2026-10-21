@@ -143,14 +143,17 @@ export const fr = {
       `Pas encore assez d'historique : l'estimation part d'un cycle type de ${days(length)}. Elle deviendra plus personnelle après quelques cycles.`,
     basisHistory: (count: number, mean: number, sd: number) =>
       `Basé sur ${count === 1 ? 'ton dernier cycle' : `tes ${count} derniers cycles`} : durée moyenne de ${days(mean)}` +
-      (count > 1 ? `, variation d'environ ± ${days(sd)}.` : '.'),
+      (count < 2 ? '.' : sd === 0 ? ', avec très peu de variation.' : `, variation d'environ ± ${days(sd)}.`),
     excludedCycles: (n: number) =>
       `${n} ${plural(n, 'cycle inhabituel a été écarté', 'cycles inhabituels ont été écartés')} du calcul (moins de 15 ou plus de 90 jours).`,
     late: (n: number) => `Tes règles ont ${days(n)} de retard par rapport à l'estimation.`,
     lateContext:
       "Un retard peut avoir de nombreuses explications : variation naturelle du cycle, stress, manque de sommeil, voyage, changement de rythme, maladie récente, variation de poids, sport intense, arrêt ou changement de contraception, SOPK ou autres facteurs hormonaux, ou encore une grossesse si elle est possible. En cas de doute ou d'inquiétude, un professionnel de santé peut t'aider.",
-    ovulationTitle: 'Ovulation',
-    ovulationWindow: (from: string, to: string) => `Estimée entre le ${from} et le ${to}`,
+    phaseTitle: 'Phase du cycle',
+    ovulationWindow: (from: string, to: string) => `Ovulation estimée entre le ${from} et le ${to}`,
+    howTitle: 'Comment ces estimations sont calculées',
+    method:
+      "Les prochaines règles sont estimées à partir de la durée moyenne de tes cycles récents ; l'ovulation est placée environ 14 jours avant. Ce ne sont que des estimations : Orsa ne peut ni confirmer une ovulation ni servir de contraception.",
   },
   storage: {
     loading: 'Chargement de tes données…',
