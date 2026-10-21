@@ -5,7 +5,14 @@
  * Product rule: predictions are always worded as estimates, never as facts,
  * and nothing here may read as a medical diagnosis.
  */
-import type { FlowLevel, Mood, ThemePreference } from '@/domain/types';
+import type {
+  ContraceptionMethod,
+  FlowLevel,
+  LifeMode,
+  Mood,
+  ThemePreference,
+  TrackableItem,
+} from '@/domain/types';
 
 const plural = (n: number, one: string, many: string) => (Math.abs(n) <= 1 ? one : many);
 const days = (n: number) => `${n} ${plural(n, 'jour', 'jours')}`;
@@ -154,6 +161,92 @@ export const fr = {
     howTitle: 'Comment ces estimations sont calculées',
     method:
       "Les prochaines règles sont estimées à partir de la durée moyenne de tes cycles récents ; l'ovulation est placée environ 14 jours avant. Ce ne sont que des estimations : Orsa ne peut ni confirmer une ovulation ni servir de contraception.",
+  },
+  lifeMode: {
+    title: 'Mode de vie hormonal',
+    modes: {
+      natural: 'Cycle naturel',
+      hormonalContraception: 'Contraception hormonale',
+      tryingToConceive: 'Essai de grossesse',
+      postpartum: 'Post-partum / allaitement',
+      perimenopause: 'Périménopause',
+    } satisfies Record<LifeMode, string>,
+    descriptions: {
+      natural: "Sans contraception hormonale. Orsa estime tes prochaines règles, ta phase et ta fenêtre fertile.",
+      hormonalContraception:
+        "Pilule, stérilet hormonal, implant, patch, anneau ou injection. Orsa suit tes saignements et tes symptômes, sans estimer d'ovulation ni de fenêtre fertile.",
+      tryingToConceive:
+        'Orsa met en avant ta fenêtre fertile estimée. Cela reste des estimations, à compléter plus tard par des tests LH ou la température.',
+      postpartum:
+        "Pas d'estimation tant que tes cycles ne sont pas revenus. Orsa suit tes saignements et tes symptômes.",
+      perimenopause:
+        'Les cycles varient souvent beaucoup : les estimations restent prudentes, avec une confiance faible.',
+    } satisfies Record<LifeMode, string>,
+    methodTitle: 'Méthode (facultatif)',
+    methods: {
+      pill: 'Pilule',
+      hormonalIud: 'Stérilet hormonal',
+      implant: 'Implant',
+      patch: 'Patch',
+      ring: 'Anneau',
+      injection: 'Injection',
+    } satisfies Record<ContraceptionMethod, string>,
+    current: (mode: string, since: string) => `${mode}, depuis le ${since}`,
+    changeHint: 'Un changement prend effet aujourd’hui. Ton historique est conservé.',
+    historyTitle: 'Historique',
+    historyItem: (mode: string, since: string) => `${mode} — depuis le ${since}`,
+  },
+  tracking: {
+    title: 'Éléments suivis',
+    items: {
+      flow: 'Flux',
+      pain: 'Douleur',
+      mood: 'Humeur',
+      energy: 'Énergie',
+      sleep: 'Sommeil',
+      hotFlashes: 'Bouffées de chaleur',
+      nightSweats: 'Sueurs nocturnes',
+      note: 'Note libre',
+    } satisfies Record<TrackableItem, string>,
+    periodsAlways: 'Les règles et saignements sont toujours suivis.',
+    hint: 'Tu peux en suivre très peu (par exemple règles, douleur et humeur) ou davantage. Modifiable à tout moment dans les Réglages.',
+  },
+  notContraception:
+    "Orsa n'est pas une méthode de contraception. Ses estimations (fenêtre fertile, ovulation) ne doivent jamais servir à éviter une grossesse : aucun jour n'est « sans risque ».",
+  onboarding: {
+    step: (n: number, total: number) => `Étape ${n} sur ${total}`,
+    next: 'Continuer',
+    back: 'Retour',
+    skip: 'Passer',
+    welcomeTitle: 'Bienvenue dans Orsa',
+    welcomeBody: "Orsa t'aide à suivre ton cycle, tes saignements et tes symptômes, et à mieux comprendre ton corps.",
+    privacyPoints: [
+      'Aucun compte nécessaire.',
+      'Tes données restent sur cet appareil.',
+      'Pas de publicité, pas de suivi.',
+    ],
+    notMedical: "Orsa ne pose pas de diagnostic et ne remplace pas l'avis d'un·e professionnel·le de santé.",
+    understood: "J'ai compris, commencer",
+    modeTitle: 'Quelle est ta situation actuelle ?',
+    modeBody: 'Elle détermine ce qu’Orsa peut estimer. Tu pourras la changer à tout moment.',
+    cyclesTitle: 'Tes dernières règles',
+    bleedingsTitle: 'Tes derniers saignements',
+    cyclesBody:
+      'Facultatif : touche le premier jour de tes dernières règles, si tu t’en souviens. Plus il y en a, plus les estimations seront personnelles.',
+    selectedCount: (n: number) => (n === 0 ? 'Aucune date choisie.' : n === 1 ? '1 date choisie.' : `${n} dates choisies.`),
+    typicalLengthTitle: 'Durée habituelle de ton cycle',
+    typicalLengthBody: 'Facultatif. Utilisée seulement tant qu’Orsa n’a pas assez d’historique.',
+    unknownLength: 'Je ne sais pas',
+    lengthValue: (n: number) => `${n} jours`,
+    decrease: 'Diminuer',
+    increase: 'Augmenter',
+    trackingTitle: 'Que veux-tu suivre ?',
+    summaryTitle: 'Tout est prêt',
+    summaryMode: (mode: string) => `Mode : ${mode}`,
+    summaryCycles: (n: number) =>
+      n === 0 ? 'Aucune date de règles saisie pour l’instant.' : `${n} ${n === 1 ? 'date de règles saisie' : 'dates de règles saisies'}.`,
+    summaryTracking: (items: string) => `Suivi : règles${items ? `, ${items}` : ''}.`,
+    finish: "C'est parti",
   },
   storage: {
     loading: 'Chargement de tes données…',

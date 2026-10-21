@@ -4,6 +4,7 @@ import { ActivityIndicator, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { AppShell } from '@/components/AppShell';
+import { Onboarding } from '@/components/onboarding/Onboarding';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import { OrsaDataProvider, useOrsaData } from '@/data/OrsaDataProvider';
@@ -25,7 +26,7 @@ function Banner({ text }: { text: string }) {
 }
 
 function Content() {
-  const { status, reload, saveFailed, recoveredFromUnreadableData } = useOrsaData();
+  const { status, data, reload, saveFailed, recoveredFromUnreadableData } = useOrsaData();
   const { colors, spacing } = useTheme();
 
   if (status !== 'ready') {
@@ -45,6 +46,8 @@ function Content() {
       </View>
     );
   }
+
+  if (!data.onboardingCompletedAt) return <Onboarding />;
 
   return (
     <AppShell>

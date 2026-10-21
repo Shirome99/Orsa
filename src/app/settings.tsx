@@ -5,10 +5,13 @@ import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { ChoiceChips } from '@/components/ui/ChoiceChips';
+import { OptionCards } from '@/components/ui/OptionCards';
 import { Screen } from '@/components/ui/Screen';
 import { useOrsaData } from '@/data/OrsaDataProvider';
-import type { ThemePreference } from '@/domain/types';
+import { lifeModeOn } from '@/domain/records';
+import { CONTRACEPTION_METHODS, LIFE_MODES, type ThemePreference } from '@/domain/types';
 import { t } from '@/i18n';
+import { formatShortDate } from '@/i18n/format';
 import { useTheme } from '@/theme/ThemeProvider';
 
 const THEME_OPTIONS: readonly ThemePreference[] = ['system', 'light', 'dark'];
@@ -17,7 +20,8 @@ type DeleteState = 'idle' | 'confirming' | 'done' | 'error';
 
 export default function SettingsScreen() {
   const { colors, spacing } = useTheme();
-  const { data, updateSettings, deleteAllData } = useOrsaData();
+  const { data, todayDate, updateSettings, setLifeMode, deleteAllData } = useOrsaData();
+  const currentMode = lifeModeOn(data.lifeModes, todayDate);
   const [deleteState, setDeleteState] = useState<DeleteState>('idle');
 
   const confirmDelete = () => {
@@ -36,6 +40,46 @@ export default function SettingsScreen() {
           value={data.settings.themePreference}
           onChange={(value) => updateSettings({ themePreference: value ?? 'system' })}
         />
+      </Card>
+
+      <Card title={t.lifeMode.title}>
+        <AppText variant="caption" muted>
+          {t.lifeMode.changeHint}
+        </AppText>
+        <OptionCards
+          accessibilityLabel={t.lifeMode.title}
+          options={LIFE_MODES}
+          titles={t.lifeMode.modes}
+          descriptions={t.lifeMode.descriptions}
+          value={currentMode.mode}
+          onChange={(mode) => setLifeMode(mode)}
+        />
+        {currentMode.mode === 'hormonalContraception' ? (
+          <View style={{ gap: spacing.sm }}>
+            <AppText variant="label">{t.lifeMode.methodTitle}</AppText>
+            <ChoiceChips
+              accessibilityLabel={t.lifeMode.methodTitle}
+              options={CONTRACEPTION_METHODS}
+              labels={t.lifeMode.methods}
+              value={currentMode.contraceptionMethod}
+              onChange={(method) => setLifeMode('hormonalContraception', method)}
+            />
+          </View>
+        ) : null}
+        {data.lifeModes.length > 0 ? (
+          <View style={{ gap: spacing.xs }}>
+            <AppText variant="label">{t.lifeMode.historyTitle}</AppText>
+            {[...data.lifeModes].reverse().map((entry) => (
+              <AppText key={entry.id} variant="caption" muted>
+                {t.lifeMode.historyItem(
+                  t.lifeMode.modes[entry.mode] +
+                    (entry.contraceptionMethod ? ` (${t.lifeMode.methods[entry.contraceptionMethod].toLowerCase()})` : ''),
+                  formatShortDate(entry.startDate),
+                )}
+              </AppText>
+            ))}
+          </View>
+        ) : null}
       </Card>
 
       <Card title={t.settings.privacyTitle}>

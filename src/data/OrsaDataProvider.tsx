@@ -3,17 +3,20 @@ import { Platform } from 'react-native';
 
 import type { ISODate } from '@/domain/dates';
 import {
+  completeOnboarding,
   emptyData,
   endPeriod,
   removePeriod,
   reopenPeriod,
   saveDailyLog,
+  setLifeMode,
   startPeriod,
   updateSettings,
   type DailyLogInput,
+  type OnboardingAnswers,
   type OrsaData,
 } from '@/domain/records';
-import type { Settings } from '@/domain/types';
+import type { ContraceptionMethod, LifeMode, Settings } from '@/domain/types';
 import { useTodayDate } from '@/hooks/useTodayDate';
 
 import { DATA_KEY, KeyValueOrsaRepository, type OrsaRepository } from './OrsaRepository';
@@ -36,6 +39,9 @@ interface OrsaDataContextValue {
   removePeriod: (periodId: string) => void;
   saveDailyLog: (log: DailyLogInput) => void;
   updateSettings: (patch: Partial<Settings>) => void;
+  /** Declares a new life mode starting today (the history is kept). */
+  setLifeMode: (mode: LifeMode, contraceptionMethod?: ContraceptionMethod) => void;
+  completeOnboarding: (answers: OnboardingAnswers) => void;
   deleteAllData: () => Promise<void>;
 }
 
@@ -122,6 +128,8 @@ export function OrsaDataProvider({
       removePeriod: (id) => update((d) => removePeriod(d, id)),
       saveDailyLog: (log) => update((d) => saveDailyLog(d, log)),
       updateSettings: (patch) => update((d) => updateSettings(d, patch)),
+      setLifeMode: (mode, method) => update((d) => setLifeMode(d, mode, todayDate, method)),
+      completeOnboarding: (answers) => update((d) => completeOnboarding(d, answers, todayDate)),
       deleteAllData,
     }),
     [status, data, todayDate, saveFailed, recovered, load, update, deleteAllData],
