@@ -152,7 +152,31 @@ export const fr = {
     ovulationTitle: 'Ovulation',
     ovulationWindow: (from: string, to: string) => `Estimée entre le ${from} et le ${to}`,
   },
+  storage: {
+    loading: 'Chargement de tes données…',
+    loadError: "Impossible de lire les données enregistrées sur cet appareil.",
+    retry: 'Réessayer',
+    saveError:
+      "La dernière modification n'a pas pu être enregistrée sur cet appareil. Elle sera perdue à la fermeture d'Orsa. Vérifie l'espace disponible ou les réglages de ton navigateur.",
+    recovered:
+      "Des données enregistrées n'ont pas pu être lues. Elles ont été mises de côté sur cet appareil (pas supprimées) et Orsa repart d'un journal vide.",
+  },
   settings: {
+    privacyTitle: 'Confidentialité',
+    privacyLocal:
+      "Tes données restent uniquement sur cet appareil, dans le stockage local de ce navigateur. Aucun compte n'est nécessaire, rien n'est envoyé sur Internet, il n'y a ni publicité ni suivi.",
+    privacyBrowserNote:
+      "Attention : effacer les données de navigation de ce site, ou utiliser une fenêtre de navigation privée, supprime ou ne conserve pas tes données. Elles ne sont pas encore chiffrées.",
+    deleteTitle: 'Supprimer toutes mes données',
+    deleteBody: 'Supprime définitivement toutes tes règles, ton journal et tes réglages de cet appareil.',
+    deleteButton: 'Supprimer toutes mes données',
+    deleteConfirm: 'Oui, tout supprimer définitivement',
+    deleteWarning: 'Cette action est irréversible.',
+    deleteDone: 'Toutes tes données ont été supprimées.',
+    deleteError: "La suppression n'a pas pu aboutir. Réessaie.",
+    aboutTitle: 'À propos',
+    aboutBody:
+      "Orsa t'aide à suivre et comprendre ton cycle. Ses estimations ne sont pas des diagnostics et ne remplacent pas l'avis d'un professionnel de santé. Orsa n'est pas un moyen de contraception.",
     themeTitle: 'Apparence',
     themes: { system: 'Comme le système', light: 'Clair', dark: 'Sombre' } satisfies Record<ThemePreference, string>,
   },
