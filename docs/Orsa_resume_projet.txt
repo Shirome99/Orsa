@@ -1,0 +1,478 @@
+ORSA — RÉSUMÉ DU PROJET
+
+Orsa est une application mobile de suivi du cycle menstruel et de la santé hormonale, avec un fort accent sur :
+- confidentialité ;
+- personnalisation ;
+- compréhension du cycle ;
+- gestion des cycles irréguliers et du SOPK ;
+- suivi des symptômes ;
+- prédictions prudentes et explicables ;
+- export facile des données ;
+- absence de publicité imposée.
+
+L’objectif n’est pas seulement de prévoir les règles et l’ovulation, mais d’aider l’utilisatrice à suivre, comprendre, anticiper et analyser son propre corps.
+
+
+1. CALENDRIER MENSTRUEL PRÉDICTIF
+
+Le calendrier doit suivre plusieurs phases :
+- menstruation ;
+- phase folliculaire ;
+- fenêtre fertile ;
+- ovulation estimée ;
+- phase lutéale ;
+- SPM potentiel.
+
+Les prédictions doivent être présentées comme des estimations, jamais comme des certitudes.
+
+Exemple :
+Ovulation estimée entre le 12 et le 16 septembre
+Niveau de confiance : moyen
+
+L’algorithme doit prendre en compte :
+- durée moyenne des cycles ;
+- variabilité ;
+- cycles irréguliers ;
+- historique ;
+- SOPK si déclaré.
+
+
+2. JOURNAL QUOTIDIEN DE SYMPTÔMES
+
+L’utilisatrice peut enregistrer notamment :
+- flux : aucun / spotting / léger / moyen / abondant ;
+- douleur 0 à 10 ;
+- localisation de la douleur ;
+- humeur ;
+- énergie ;
+- sommeil ;
+- peau ;
+- acné ;
+- digestion ;
+- ballonnements ;
+- libido ;
+- pertes vaginales ;
+- maux de tête ;
+- appétit ;
+- médicaments ;
+- poids ;
+- température ou autres paramètres pertinents ;
+- notes libres.
+
+Les éléments suivis doivent être personnalisables.
+
+L’utilisatrice peut décider de ne suivre que :
+Règles
+Douleur
+Humeur
+
+ou beaucoup plus d’informations.
+
+
+3. GESTION DES RETARDS DE RÈGLES
+
+Orsa ne doit jamais supposer immédiatement qu’un retard signifie grossesse.
+
+Exemple :
+Tes règles ont 5 jours de retard par rapport à ton cycle habituel.
+
+Puis présenter différentes causes possibles :
+- variation naturelle du cycle ;
+- stress ;
+- manque de sommeil ;
+- voyage ;
+- changement de rythme ;
+- maladie récente ;
+- variation importante du poids ;
+- sport intense ;
+- arrêt ou changement de contraception ;
+- SOPK ;
+- autres facteurs hormonaux ;
+- grossesse si elle est possible.
+
+La grossesse doit être présentée comme une possibilité parmi d’autres.
+
+L’application pourrait également poser quelques questions :
+As-tu eu davantage de stress récemment ?
+As-tu été malade ?
+Ton sommeil a-t-il changé ?
+As-tu changé de contraception ?
+
+Le but est d’apporter du contexte, pas de poser un diagnostic.
+
+
+4. MODULE SOPK
+
+Créer un véritable mode / tableau de bord SOPK.
+
+Cycle :
+- durée ;
+- irrégularité ;
+- fréquence ;
+- jours depuis les dernières règles.
+
+Symptômes :
+- acné ;
+- chute de cheveux ;
+- pilosité ;
+- fatigue ;
+- douleurs ;
+- humeur ;
+- spotting ;
+- fringales ;
+- etc.
+
+Métabolique :
+- poids ;
+- éventuellement tour de taille ;
+- sommeil ;
+- activité.
+
+Orsa doit pouvoir montrer des tendances :
+Tes six derniers cycles ont duré entre 34 et 51 jours.
+Tes poussées d'acné apparaissent généralement avant tes règles.
+
+Pas de diagnostic médical automatique.
+
+
+5. NUTRITION
+
+Orsa pourra proposer des conseils alimentaires selon :
+- phase du cycle ;
+- symptômes ;
+- règles ;
+- fatigue ;
+- SOPK ;
+- ballonnements ;
+- etc.
+
+Exemple pendant les règles :
+- fer ;
+- vitamine C ;
+- protéines ;
+- magnésium ;
+- hydratation.
+
+Exemples de repas :
+Lentilles + poivron
+Sardines + salade
+Œufs + légumes
+Pois chiches + citron
+
+Pour le SOPK, recommandations générales autour de :
+- fibres ;
+- protéines ;
+- équilibre glycémique ;
+- aliments peu transformés.
+
+Éviter les formulations du type :
+Cet aliment soigne le SOPK.
+
+Préférer :
+Cet aliment peut s’intégrer dans une alimentation adaptée.
+
+Les recommandations pourront tenir compte de :
+- allergies ;
+- alimentation végétarienne ;
+- halal ;
+- budget ;
+- préférences alimentaires ;
+- aliments non appréciés.
+
+
+6. ANALYSES ET CORRÉLATIONS
+
+Orsa analyse les données personnelles et détecte des tendances.
+
+Exemples :
+Tes douleurs sont généralement plus importantes à J1 et J2.
+Tes poussées d'acné apparaissent souvent pendant la seconde moitié du cycle.
+Les jours où tu dors moins de 6 heures sont associés à davantage de fatigue.
+
+Il faut toujours parler de corrélation / tendance / observation et pas de causalité ou diagnostic.
+
+
+7. ÉCRAN « AUJOURD'HUI »
+
+Écran d'accueil simple.
+
+Exemple :
+Jour 18 du cycle
+Phase lutéale estimée
+Prochaines règles :
+dans environ 9 jours
+
+Actions rapides :
++ Symptômes
++ Règles
++ Poids
++ Note
+
+Résumé :
+Énergie : 3/5
+Humeur : calme
+Douleur : 2/10
+Peau : acné légère
+
+Et tendances éventuelles.
+
+
+8. WIDGET INTERACTIF
+
+Le widget ne doit pas être uniquement informatif.
+
+Exemple :
+Jour 24
+Phase lutéale estimée
+Règles dans ~5 jours
+
++ Flux
++ Douleur
++ Humeur
++ Énergie
+
+L'utilisatrice doit pouvoir enregistrer rapidement certaines informations depuis le widget lorsque la plateforme le permet.
+
+Prévoir plusieurs tailles :
+
+Petit :
+J24
+~5 jours
+
+Moyen :
+Phase + prochaine période + raccourcis.
+
+Grand :
+- cycle ;
+- symptômes ;
+- tendances ;
+- actions rapides.
+
+Prévoir également un mode discret.
+
+Au lieu de :
+Règles prévues dans 3 jours
+
+Afficher :
+Cycle J28 — prochaine étape ~3 j
+
+
+9. PERSONNALISATION
+
+Permettre de personnaliser :
+- couleurs ;
+- thème clair/sombre ;
+- calendrier ;
+- widgets ;
+- informations affichées ;
+- symptômes suivis ;
+- unités kg/lb ;
+- °C/°F ;
+- notifications ;
+- vocabulaire.
+
+
+10. CONFIDENTIALITÉ
+
+C'est un axe majeur du produit.
+
+Prévoir :
+- aucune publicité obligatoire ;
+- absence de tracking marketing lié aux données de santé ;
+- chiffrement ;
+- verrouillage PIN / biométrie ;
+- analytics désactivables ;
+- données sensibles protégées ;
+- suppression complète des données ;
+- export complet.
+
+Idéalement proposer :
+Continuer sans compte
+Continuer avec Google
+Continuer avec e-mail
+
+Et potentiellement :
+Mes données restent uniquement sur cet appareil.
+
+La connexion Google ne doit pas être obligatoire.
+
+
+11. PUBLICITÉ
+
+Pas de publicité par défaut.
+
+L'utilisatrice peut éventuellement choisir :
+Afficher occasionnellement des publicités pour soutenir Orsa.
+
+Même dans ce cas :
+aucune donnée menstruelle ou médicale ne doit servir au ciblage publicitaire.
+
+
+12. EXPORT DES DONNÉES
+
+Prévoir plusieurs formats.
+
+PDF :
+Rapport utilisable lors d'une consultation médicale :
+- cycles ;
+- dates ;
+- symptômes ;
+- douleurs ;
+- poids ;
+- tendances ;
+- graphiques.
+
+CSV :
+Pour récupérer et analyser ses données.
+
+JSON :
+Pour une portabilité complète.
+
+Boutons importants :
+Exporter mes données
+Télécharger toutes mes données
+Supprimer toutes mes données
+
+
+13. CONNEXION ET SYNCHRONISATION
+
+Prévoir à terme :
+- connexion Google ;
+- e-mail ;
+- mode sans compte ;
+- synchronisation multi-appareils ;
+- sauvegarde cloud chiffrée.
+
+
+14. INTÉGRATIONS SANTÉ
+
+À terme :
+- Android Health Connect ;
+- Apple Health.
+
+Potentiellement récupérer avec autorisation :
+- poids ;
+- sommeil ;
+- activité ;
+- fréquence cardiaque ;
+- température lorsque disponible ;
+- autres données pertinentes.
+
+
+STACK TECHNIQUE PROPOSÉE
+
+Pour débuter :
+React Native
+Expo
+TypeScript
+Expo Router
+
+Puis probablement :
+SQLite
+stockage sécurisé
+backend cloud
+authentification Google
+synchronisation
+
+L'objectif est d'avoir une seule base de code Android + iOS.
+
+
+ARCHITECTURE FONCTIONNELLE INITIALE
+
+ORSA
+│
+├── Onboarding
+├── Aujourd'hui
+├── Calendrier
+├── Journal
+│   ├── Flux
+│   ├── Douleurs
+│   ├── Humeur
+│   ├── Énergie
+│   ├── Peau
+│   └── Autres symptômes
+├── Analyses
+├── SOPK
+├── Nutrition
+└── Profil / Réglages
+
+
+PREMIER OBJECTIF FONCTIONNEL
+
+Ne pas commencer par l'IA ou le SOPK avancé.
+
+La première boucle complète à faire fonctionner est :
+
+L'utilisatrice indique :
+"Mes règles commencent aujourd'hui"
+
+↓
+Orsa enregistre la date
+
+↓
+Le calendrier est mis à jour
+
+↓
+Aujourd'hui devient J1
+
+↓
+L'utilisatrice saisit :
+flux + douleur + humeur
+
+↓
+Les informations sont enregistrées
+
+↓
+Elle ferme Orsa
+
+↓
+Elle revient
+
+↓
+Toutes les données sont toujours présentes
+
+Cette boucle constitue le premier MVP technique.
+
+
+ROADMAP PROPOSÉE
+
+Phase 0 : Environnement de développement
+Phase 1 : Projet Orsa + navigation
+Phase 2 : Design system
+Phase 3 : Écran Aujourd'hui
+Phase 4 : Calendrier
+Phase 5 : Enregistrement des règles
+Phase 6 : Journal de symptômes
+Phase 7 : Base locale
+Phase 8 : Algorithme du cycle
+Phase 9 : Cycles irréguliers
+Phase 10 : SOPK
+Phase 11 : Analyses et tendances
+Phase 12 : Nutrition
+Phase 13 : Export PDF / CSV / JSON
+Phase 14 : Comptes + Google
+Phase 15 : Synchronisation chiffrée
+Phase 16 : Widget interactif
+Phase 17 : Health Connect / Apple Health
+Phase 18 : Notifications
+Phase 19 : Sécurité, tests et publication
+
+
+PRINCIPE PRODUIT À CONSERVER PARTOUT
+
+Éviter :
+Ton ovulation aura lieu mardi.
+
+Préférer :
+Ton ovulation est estimée autour de mardi.
+
+Éviter :
+Ce symptôme est causé par ton SOPK.
+
+Préférer :
+Ce symptôme peut être associé au SOPK, mais d'autres causes sont possibles.
+
+
+RÉSUMÉ FINAL
+
+Orsa doit être une application privée et personnalisable permettant de suivre le cycle, les symptômes et la santé hormonale, comprendre les tendances individuelles et anticiper certaines périodes, sans se substituer à un professionnel de santé.
