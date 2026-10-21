@@ -15,12 +15,14 @@ interface MonthCalendarProps {
   todayDate: ISODate;
   selectedDate: ISODate | undefined;
   onSelect: (date: ISODate) => void;
+  /** Use the "saignements" wording (hormonal contraception, postpartum). */
+  bleeding?: boolean;
 }
 
-function describeMark(mark: DayMark | undefined): string[] {
+function describeMark(mark: DayMark | undefined, bleeding: boolean): string[] {
   if (!mark) return [];
   const details: string[] = [];
-  if (mark.period) details.push(t.calendar.legend.period);
+  if (mark.period) details.push(bleeding ? t.calendar.legend.bleeding : t.calendar.legend.period);
   if (mark.predictedPeriod) details.push(t.calendar.legend.predictedPeriod);
   if (mark.ovulation) details.push(t.calendar.legend.ovulation);
   else if (mark.fertile) details.push(t.calendar.legend.fertile);
@@ -28,7 +30,7 @@ function describeMark(mark: DayMark | undefined): string[] {
   return details;
 }
 
-export function MonthCalendar({ year, monthIndex, marks, todayDate, selectedDate, onSelect }: MonthCalendarProps) {
+export function MonthCalendar({ year, monthIndex, marks, todayDate, selectedDate, onSelect, bleeding = false }: MonthCalendarProps) {
   const { colors, spacing, radius } = useTheme();
   const cells = monthGrid(year, monthIndex);
 
@@ -69,7 +71,7 @@ export function MonthCalendar({ year, monthIndex, marks, todayDate, selectedDate
             <View key={date} style={{ width: `${100 / 7}%`, padding: 2 }}>
               <Pressable
                 accessibilityRole="button"
-                accessibilityLabel={t.calendar.dayLabel(formatLongDate(date), describeMark(mark))}
+                accessibilityLabel={t.calendar.dayLabel(formatLongDate(date), describeMark(mark, bleeding))}
                 accessibilityState={{ selected }}
                 onPress={() => onSelect(date)}
                 style={({ hovered }: { hovered?: boolean }) => ({
@@ -119,10 +121,12 @@ export function MonthCalendar({ year, monthIndex, marks, todayDate, selectedDate
 }
 
 /** Legend explaining the calendar colors; estimates are labelled as such. */
-export function CalendarLegend() {
+export function CalendarLegend({ estimates = true, bleeding = false }: { estimates?: boolean; bleeding?: boolean }) {
   const { colors, spacing } = useTheme();
-  const items: { label: string; swatch: object }[] = [
-    { label: t.calendar.legend.period, swatch: { backgroundColor: colors.period } },
+  const recorded = { label: bleeding ? t.calendar.legend.bleeding : t.calendar.legend.period, swatch: { backgroundColor: colors.period } };
+  const logged = { label: t.calendar.legend.hasLog, swatch: { backgroundColor: colors.primary, borderRadius: 6, width: 8, height: 8 } };
+  const items: { label: string; swatch: object }[] = !estimates ? [recorded, logged] : [
+    recorded,
     {
       label: t.calendar.legend.predictedPeriod,
       swatch: { backgroundColor: colors.periodSoft, borderWidth: 1, borderStyle: 'dashed', borderColor: colors.period },

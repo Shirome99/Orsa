@@ -4,16 +4,16 @@ import { View } from 'react-native';
 
 import { DaySummary } from '@/components/DaySummary';
 import { PeriodActions } from '@/components/PeriodActions';
-import { PredictionCards } from '@/components/PredictionCard';
+import { PredictionCards, TrackingCard } from '@/components/PredictionCard';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Screen } from '@/components/ui/Screen';
 import { useOrsaData } from '@/data/OrsaDataProvider';
 import { careSuggestions } from '@/domain/careSuggestions';
-import { predictCycle } from '@/domain/cycle';
 import { diffInDays } from '@/domain/dates';
 import { ongoingPeriod } from '@/domain/records';
+import { useCycleOverview, usePeriodWords } from '@/hooks/useCycleOverview';
 import { t } from '@/i18n';
 import { formatLongDate } from '@/i18n/format';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -23,7 +23,8 @@ export default function TodayScreen() {
   const { colors, spacing } = useTheme();
   const { data, todayDate } = useOrsaData();
 
-  const prediction = useMemo(() => predictCycle(data.periods, todayDate), [data.periods, todayDate]);
+  const overview = useCycleOverview();
+  const { words, bleeding } = usePeriodWords();
   const ongoing = ongoingPeriod(data.periods, todayDate);
   const suggestions = useMemo(
     () => careSuggestions(data.logs, data.periods, data.lifeModes, todayDate),
@@ -32,14 +33,14 @@ export default function TodayScreen() {
 
   return (
     <Screen title={t.screens.today.title} subtitle={formatLongDate(todayDate)}>
-      {prediction ? (
+      {overview ? (
         <Card tone="accent">
-          <AppText variant="display" color={colors.primary}>
-            {t.today.cycleDay(prediction.cycleDay)}
+          <AppText variant={overview.kind === 'estimate' ? 'display' : 'title'} color={colors.primary}>
+            {overview.kind === 'estimate' ? t.today.cycleDay(overview.cycleDay) : t.today.bleedingDay(overview.cycleDay)}
           </AppText>
           {ongoing ? (
             <AppText variant="heading" color={colors.period}>
-              {t.today.periodOngoing(diffInDays(todayDate, ongoing.startDate) + 1)}
+              {(bleeding ? t.today.bleedingOngoing : t.today.periodOngoing)(diffInDays(todayDate, ongoing.startDate) + 1)}
             </AppText>
           ) : null}
         </Card>
@@ -49,9 +50,10 @@ export default function TodayScreen() {
         </Card>
       )}
 
-      {prediction ? <PredictionCards prediction={prediction} /> : null}
+      {overview?.kind === 'estimate' ? <PredictionCards prediction={overview} /> : null}
+      {overview?.kind === 'tracking' ? <TrackingCard overview={overview} /> : null}
 
-      <Card title={t.period.title}>
+      <Card title={words.title}>
         <PeriodActions date={todayDate} />
       </Card>
 

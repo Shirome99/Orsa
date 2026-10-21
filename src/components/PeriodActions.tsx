@@ -4,6 +4,7 @@ import { View } from 'react-native';
 import { useOrsaData } from '@/data/OrsaDataProvider';
 import { diffInDays, type ISODate } from '@/domain/dates';
 import { periodStatusOn } from '@/domain/records';
+import { usePeriodWords } from '@/hooks/useCycleOverview';
 import { t } from '@/i18n';
 import { useTheme } from '@/theme/ThemeProvider';
 
@@ -17,6 +18,7 @@ export function PeriodActions({ date }: { date: ISODate }) {
   const [confirmingRemoval, setConfirmingRemoval] = useState(false);
   const status = periodStatusOn(data.periods, date, todayDate);
   const isToday = date === todayDate;
+  const { words } = usePeriodWords();
 
   useEffect(() => setConfirmingRemoval(false), [date]);
 
@@ -25,9 +27,9 @@ export function PeriodActions({ date }: { date: ISODate }) {
   if (status.kind === 'outside') {
     return (
       <View style={{ gap: spacing.sm }}>
-        <AppText muted>{t.period.statusOutside}</AppText>
+        <AppText muted>{words.statusOutside}</AppText>
         <Row>
-          <Button label={isToday ? t.period.startToday : t.period.startedOn} onPress={() => startPeriod(date)} />
+          <Button label={isToday ? words.startToday : words.startedOn} onPress={() => startPeriod(date)} />
         </Row>
       </View>
     );
@@ -36,37 +38,37 @@ export function PeriodActions({ date }: { date: ISODate }) {
   const { period, isStart, isRecordedEnd } = status;
   const dayNumber = diffInDays(date, period.startDate) + 1;
   const statusText = isStart
-    ? t.period.statusStart
+    ? words.statusStart
     : isRecordedEnd
-      ? t.period.statusEnd
-      : t.period.statusInside(dayNumber);
+      ? words.statusEnd
+      : words.statusInside(dayNumber);
 
   return (
     <View style={{ gap: spacing.sm }}>
       <AppText>{statusText}</AppText>
       <Row>
         {isRecordedEnd ? (
-          <Button variant="ghost" label={t.period.undoEnd} onPress={() => reopenPeriod(period.id)} />
+          <Button variant="ghost" label={words.undoEnd} onPress={() => reopenPeriod(period.id)} />
         ) : (
           <Button
             variant="secondary"
-            label={isToday ? t.period.endToday : t.period.endedOn}
+            label={isToday ? words.endToday : words.endedOn}
             onPress={() => endPeriod(period.id, date)}
           />
         )}
         {isStart && !confirmingRemoval ? (
-          <Button variant="ghost" label={t.period.remove} onPress={() => setConfirmingRemoval(true)} />
+          <Button variant="ghost" label={words.remove} onPress={() => setConfirmingRemoval(true)} />
         ) : null}
         {isStart && confirmingRemoval ? (
           <>
-            <Button variant="danger" label={t.period.confirmRemove} onPress={() => removePeriod(period.id)} />
+            <Button variant="danger" label={words.confirmRemove} onPress={() => removePeriod(period.id)} />
             <Button variant="ghost" label={t.common.cancel} onPress={() => setConfirmingRemoval(false)} />
           </>
         ) : null}
       </Row>
       {confirmingRemoval ? (
         <AppText variant="caption" muted>
-          {t.period.removeWarning}
+          {words.removeWarning}
         </AppText>
       ) : null}
     </View>

@@ -9,11 +9,13 @@
  *   standard deviation;
  * - ovulation is placed ~14 days before the next estimated period (the luteal
  *   phase varies less than the follicular phase).
+ * The user's life mode decides what may be estimated at all (see CLAUDE.md).
  * These are estimates only; they are never presented as facts.
  */
 import { addDays, diffInDays, type ISODate } from './dates';
-import { findPeriodContaining, sortedPeriods } from './records';
-import type { PeriodEntry } from './types';
+import { isExcludedFromCycleStats } from './lifeModes';
+import { findPeriodContaining, lifeModeOn, sortedLifeModes, sortedPeriods } from './records';
+import type { LifeMode, LifeModeEntry, PeriodEntry } from './types';
 
 export const DEFAULT_CYCLE_LENGTH = 28;
 export const DEFAULT_PERIOD_LENGTH = 5;
@@ -25,6 +27,8 @@ export const RECENT_CYCLE_COUNT = 6;
 /** Uncertainty (± days) used while there are fewer than 3 cycles of history. */
 export const LOW_HISTORY_MARGIN = 3;
 export const MAX_MARGIN = 7;
+/** Cycles needed after leaving hormonal contraception / postpartum before the warning disappears. */
+export const CYCLES_TO_SETTLE_AFTER_MODE_CHANGE = 3;
 
 export type Confidence = 'low' | 'medium' | 'high';
 export type CyclePhase = 'menstruation' | 'follicular' | 'fertile' | 'ovulation' | 'luteal' | 'unknown';
@@ -39,15 +43,28 @@ export interface CycleStats {
   usedCycleLengths: number[];
   /** Cycles ignored because they are implausibly short or long (likely missing or extra entries). */
   excludedCycleCount: number;
-  /** Average cycle length in days (rounded), or the default when there is no history. */
+  /** Cycles ignored because they were lived under hormonal contraception / postpartum, or before it. */
+  excludedByModeCount: number;
+  /** Average cycle length in days (rounded): from history, else the user's typical length, else 28. */
   meanCycleLength: number;
   /** Standard deviation of the used cycle lengths, in days (one decimal). */
   standardDeviation: number;
   meanPeriodLength: number;
-  basedOnHistory: boolean;
+  source: 'history' | 'typical' | 'default';
+  /** True when stats only start after leaving hormonal contraception / postpartum. */
+  restartedAfterModeChange: boolean;
 }
 
-export interface CyclePrediction {
+export interface CycleOptions {
+  lifeModes?: readonly LifeModeEntry[];
+  /** Usual cycle length given by the user, used only without history. */
+  typicalCycleLength?: number;
+}
+
+/** Full estimate (natural cycle, trying to conceive, perimenopause). */
+export interface CycleEstimate {
+  kind: 'estimate';
+  mode: LifeMode;
   cycleStart: ISODate;
   cycleDay: number;
   phase: CyclePhase;
@@ -59,10 +76,25 @@ export interface CyclePrediction {
   ovulation: { date: ISODate; window: DateRange; confidence: Confidence };
   fertileWindow: DateRange;
   confidence: Confidence;
+  /** The life mode lowered the confidence (perimenopause). */
+  confidenceCappedByMode: boolean;
+  /** First cycles after hormonal contraception / postpartum: may be irregular. */
+  settlingAfterModeChange: boolean;
   /** Days past the estimated date, once the whole estimated window has passed. */
   daysLate: number;
   stats: CycleStats;
 }
+
+/** Bleeding tracking only (hormonal contraception, postpartum): nothing is estimated. */
+export interface BleedingTracking {
+  kind: 'tracking';
+  mode: LifeMode;
+  cycleStart: ISODate;
+  /** Days since the start of the last bleeding (day 1 = first day). */
+  cycleDay: number;
+}
+
+export type CycleOverview = CycleEstimate | BleedingTracking;
 
 /** Start of the cycle containing `todayDate` (the latest period start on or before it). */
 export function currentCycleStart(periods: readonly PeriodEntry[], todayDate: ISODate): ISODate | undefined {
@@ -76,16 +108,40 @@ export function cycleDay(cycleStart: ISODate, todayDate: ISODate): number {
   return diffInDays(todayDate, cycleStart) + 1;
 }
 
-export function computeCycleLengths(periods: readonly PeriodEntry[]): { lengths: number[]; excluded: number } {
+/**
+ * Date from which cycles describe the natural cycle again: the end of the last
+ * hormonal contraception / postpartum period, or `undefined` if there never was one.
+ */
+export function naturalStatsStart(lifeModes: readonly LifeModeEntry[]): ISODate | undefined {
+  const entries = sortedLifeModes(lifeModes);
+  let lastExcluded = -1;
+  entries.forEach((e, i) => {
+    if (isExcludedFromCycleStats(e.mode)) lastExcluded = i;
+  });
+  if (lastExcluded === -1) return undefined;
+  // Still in an excluded mode: nothing counts yet ("9999" sorts after any date).
+  return entries[lastExcluded + 1]?.startDate ?? '9999-12-31';
+}
+
+export function computeCycleLengths(
+  periods: readonly PeriodEntry[],
+  lifeModes: readonly LifeModeEntry[] = [],
+): { lengths: number[]; excluded: number; excludedByMode: number } {
+  const statsStart = naturalStatsStart(lifeModes);
   const starts = sortedPeriods(periods).map((p) => p.startDate);
   const lengths: number[] = [];
   let excluded = 0;
+  let excludedByMode = 0;
   for (let i = 1; i < starts.length; i++) {
+    if (statsStart && starts[i - 1]! < statsStart) {
+      excludedByMode++;
+      continue;
+    }
     const length = diffInDays(starts[i]!, starts[i - 1]!);
     if (length >= MIN_PLAUSIBLE_CYCLE && length <= MAX_PLAUSIBLE_CYCLE) lengths.push(length);
     else excluded++;
   }
-  return { lengths, excluded };
+  return { lengths, excluded, excludedByMode };
 }
 
 function mean(values: readonly number[]): number {
@@ -99,21 +155,27 @@ export function standardDeviation(values: readonly number[]): number {
   return Math.sqrt(values.reduce((sum, v) => sum + (v - m) ** 2, 0) / (values.length - 1));
 }
 
-export function computeStats(periods: readonly PeriodEntry[]): CycleStats {
-  const { lengths, excluded } = computeCycleLengths(periods);
+export function computeStats(periods: readonly PeriodEntry[], options: CycleOptions = {}): CycleStats {
+  const lifeModes = options.lifeModes ?? [];
+  const statsStart = naturalStatsStart(lifeModes);
+  const { lengths, excluded, excludedByMode } = computeCycleLengths(periods, lifeModes);
   const used = lengths.slice(-RECENT_CYCLE_COUNT);
   const periodLengths = periods
-    .filter((p) => p.endDate)
+    .filter((p) => p.endDate && (!statsStart || p.startDate >= statsStart))
     .map((p) => diffInDays(p.endDate!, p.startDate) + 1)
     .filter((n) => n >= 1 && n <= 15);
 
+  const typical = options.typicalCycleLength;
+  const source = used.length ? 'history' : typical ? 'typical' : 'default';
   return {
     usedCycleLengths: used,
     excludedCycleCount: excluded,
-    meanCycleLength: used.length ? Math.round(mean(used)) : DEFAULT_CYCLE_LENGTH,
+    excludedByModeCount: excludedByMode,
+    meanCycleLength: used.length ? Math.round(mean(used)) : (typical ?? DEFAULT_CYCLE_LENGTH),
     standardDeviation: Math.round(standardDeviation(used) * 10) / 10,
     meanPeriodLength: periodLengths.length ? Math.round(mean(periodLengths)) : DEFAULT_PERIOD_LENGTH,
-    basedOnHistory: used.length > 0,
+    source,
+    restartedAfterModeChange: statsStart !== undefined,
   };
 }
 
@@ -134,13 +196,28 @@ const CONFIDENCE_ORDER: Confidence[] = ['low', 'medium', 'high'];
 const capConfidence = (value: Confidence, cap: Confidence): Confidence =>
   CONFIDENCE_ORDER.indexOf(value) > CONFIDENCE_ORDER.indexOf(cap) ? cap : value;
 
-/** Full estimate for today, or `undefined` when no period has been recorded yet. */
-export function predictCycle(periods: readonly PeriodEntry[], todayDate: ISODate): CyclePrediction | undefined {
+/**
+ * What Orsa can say about today, according to the life mode in effect, or
+ * `undefined` when no period / bleeding has been recorded yet.
+ */
+export function predictCycle(
+  periods: readonly PeriodEntry[],
+  todayDate: ISODate,
+  options: CycleOptions = {},
+): CycleOverview | undefined {
   const cycleStart = currentCycleStart(periods, todayDate);
   if (!cycleStart) return undefined;
 
-  const stats = computeStats(periods);
-  const confidence = confidenceFor(stats.usedCycleLengths.length, stats.standardDeviation);
+  const mode = lifeModeOn(options.lifeModes ?? [], todayDate).mode;
+  if (mode === 'hormonalContraception' || mode === 'postpartum') {
+    return { kind: 'tracking', mode, cycleStart, cycleDay: cycleDay(cycleStart, todayDate) };
+  }
+
+  const stats = computeStats(periods, options);
+  const historyConfidence = confidenceFor(stats.usedCycleLengths.length, stats.standardDeviation);
+  // Perimenopause: strong variability is expected, so confidence stays low by default.
+  const confidenceCappedByMode = mode === 'perimenopause' && historyConfidence !== 'low';
+  const confidence = mode === 'perimenopause' ? 'low' : historyConfidence;
   const margin = predictionMargin(stats);
 
   const nextDate = addDays(cycleStart, stats.meanCycleLength);
@@ -178,6 +255,8 @@ export function predictCycle(periods: readonly PeriodEntry[], todayDate: ISODate
   }
 
   return {
+    kind: 'estimate',
+    mode,
     cycleStart,
     cycleDay: cycleDay(cycleStart, todayDate),
     phase,
@@ -187,6 +266,9 @@ export function predictCycle(periods: readonly PeriodEntry[], todayDate: ISODate
     ovulation: { date: ovulationDate, window: ovulationWindow, confidence: capConfidence(confidence, 'medium') },
     fertileWindow,
     confidence,
+    confidenceCappedByMode,
+    settlingAfterModeChange:
+      stats.restartedAfterModeChange && stats.usedCycleLengths.length < CYCLES_TO_SETTLE_AFTER_MODE_CHANGE,
     daysLate,
     stats,
   };

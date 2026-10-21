@@ -103,6 +103,8 @@ export const fr = {
       "Indique le premier jour de tes règles pour commencer. Orsa calculera ton jour de cycle et des estimations qui s'affineront avec le temps.",
     cycleDay: (n: number) => `Jour ${n} du cycle`,
     periodOngoing: (n: number) => (n === 1 ? 'Premier jour des règles' : `${n}e jour des règles`),
+    bleedingDay: (n: number) => (n === 1 ? 'Premier jour des derniers saignements' : `Jour ${n} depuis le début des derniers saignements`),
+    bleedingOngoing: (n: number) => (n === 1 ? 'Saignements en cours' : `${n}e jour des saignements`),
     quickActions: 'Actions rapides',
     logSymptoms: '+ Symptômes du jour',
     openCalendar: 'Voir le calendrier',
@@ -139,12 +141,28 @@ export const fr = {
     statusEnd: 'Dernier jour de règles enregistré.',
     removeWarning: 'Les symptômes notés sur ces jours seront conservés.',
   },
+  bleeding: {
+    title: 'Saignements',
+    startedOn: 'Mes saignements ont commencé ce jour',
+    startToday: "Mes saignements commencent aujourd'hui",
+    endedOn: 'Mes saignements se sont terminés ce jour',
+    endToday: "Mes saignements se terminent aujourd'hui",
+    undoEnd: 'Annuler la date de fin',
+    remove: 'Supprimer ces saignements',
+    confirmRemove: 'Confirmer la suppression',
+    statusOutside: 'Aucun saignement enregistré ce jour.',
+    statusStart: 'Premier jour de saignements enregistré.',
+    statusInside: (n: number) => `${n}e jour de saignements.`,
+    statusEnd: 'Dernier jour de saignements enregistré.',
+    removeWarning: 'Les symptômes notés sur ces jours seront conservés.',
+  },
   calendar: {
     previousMonth: 'Mois précédent',
     nextMonth: 'Mois suivant',
     backToToday: "Aujourd'hui",
     legend: {
       period: 'Règles enregistrées',
+      bleeding: 'Saignements enregistrés',
       predictedPeriod: 'Règles estimées',
       fertile: 'Fenêtre fertile estimée',
       ovulation: 'Ovulation estimée',
@@ -185,7 +203,27 @@ export const fr = {
       "Un retard peut avoir de nombreuses explications : variation naturelle du cycle, stress, manque de sommeil, voyage, changement de rythme, maladie récente, variation de poids, sport intense, arrêt ou changement de contraception, SOPK ou autres facteurs hormonaux, ou encore une grossesse si elle est possible. En cas de doute ou d'inquiétude, un professionnel de santé peut t'aider.",
     phaseTitle: 'Phase du cycle',
     ovulationWindow: (from: string, to: string) => `Ovulation estimée entre le ${from} et le ${to}`,
-    howTitle: 'Comment ces estimations sont calculées',
+    whyButton: 'Pourquoi cette estimation ?',
+    whyHide: 'Masquer les explications',
+    whyMode: (mode: string) => `Mode de vie pris en compte : ${mode}.`,
+    basisTypical: (length: number) =>
+      `Pas encore assez d'historique : l'estimation part de la durée habituelle que tu as indiquée (${days(length)}). Elle deviendra plus personnelle après quelques cycles.`,
+    excludedByMode: (n: number) =>
+      `${n} ${plural(n, 'cycle vécu', 'cycles vécus')} sous contraception hormonale, en post-partum ou avant ${plural(n, "n'est", 'ne sont')} pas pris en compte.`,
+    settling:
+      "Les premiers cycles après l'arrêt d'une contraception hormonale ou après une naissance peuvent être irréguliers : la confiance reste faible au début.",
+    perimenopause:
+      "En périménopause, la durée des cycles varie souvent beaucoup : la confiance reste faible, quel que soit l'historique.",
+    fertileWindow: (from: string, to: string) => `Du ${from} au ${to}`,
+    ttcTip:
+      "Pour affiner ces estimations, la saisie des tests d'ovulation (LH) et de la température basale arrivera dans une prochaine version.",
+    trackingTitle: 'Suivi des saignements',
+    tracking: {
+      hormonalContraception:
+        'Avec une contraception hormonale, les saignements ne correspondent pas à un cycle naturel : Orsa ne calcule ni ovulation, ni fenêtre fertile, ni prochaines règles. Tu peux continuer à noter tes saignements et tes symptômes.',
+      postpartum:
+        "Après une naissance et pendant l'allaitement, les cycles peuvent mettre du temps à revenir : Orsa ne fait pas d'estimation pour l'instant. Quand tes règles reviennent régulièrement, tu peux passer en « Cycle naturel » dans les Réglages.",
+    },
     method:
       "Les prochaines règles sont estimées à partir de la durée moyenne de tes cycles récents ; l'ovulation est placée environ 14 jours avant. Ce ne sont que des estimations : Orsa ne peut ni confirmer une ovulation ni servir de contraception.",
   },

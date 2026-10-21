@@ -11,8 +11,8 @@ import { Card } from '@/components/ui/Card';
 import { Screen } from '@/components/ui/Screen';
 import { useOrsaData } from '@/data/OrsaDataProvider';
 import { buildDayMarks, type PredictedRanges } from '@/domain/calendarMarks';
-import { predictCycle } from '@/domain/cycle';
 import { parseISODate, type ISODate } from '@/domain/dates';
+import { useCycleOverview, usePeriodWords } from '@/hooks/useCycleOverview';
 import { t } from '@/i18n';
 import { formatLongDate, formatMonthYear } from '@/i18n/format';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -26,11 +26,14 @@ export default function CalendarScreen() {
   const [month, setMonth] = useState({ year: now.getFullYear(), index: now.getMonth() });
   const [selectedDate, setSelectedDate] = useState<ISODate>(todayDate);
 
+  const prediction = useCycleOverview();
+  const { bleeding } = usePeriodWords();
+  const showsEstimates = prediction?.kind === 'estimate' && prediction.daysLate === 0;
   const marks = useMemo(() => {
-    const prediction = predictCycle(data.periods, todayDate);
     // Once the period is late, the old estimate is no longer drawn as if it were still valid.
+    // Under hormonal contraception / postpartum nothing is estimated at all.
     const predicted: PredictedRanges =
-      prediction && prediction.daysLate === 0
+      prediction?.kind === 'estimate' && prediction.daysLate === 0
         ? {
             nextPeriod: prediction.nextPeriodDays,
             fertileWindow: prediction.fertileWindow,
@@ -38,7 +41,7 @@ export default function CalendarScreen() {
           }
         : {};
     return buildDayMarks(data.periods, data.logs, todayDate, predicted);
-  }, [data.periods, data.logs, todayDate]);
+  }, [data.periods, data.logs, todayDate, prediction]);
 
   const shiftMonth = (delta: number) => {
     const target = new Date(month.year, month.index + delta, 1);
@@ -70,11 +73,19 @@ export default function CalendarScreen() {
           todayDate={todayDate}
           selectedDate={selectedDate}
           onSelect={setSelectedDate}
+          bleeding={bleeding}
         />
-        <CalendarLegend />
-        <AppText variant="caption" muted>
-          {t.calendar.estimatesNote}
-        </AppText>
+        <CalendarLegend estimates={showsEstimates} bleeding={bleeding} />
+        {showsEstimates ? (
+          <>
+            <AppText variant="caption" muted>
+              {t.calendar.estimatesNote}
+            </AppText>
+            <AppText variant="caption" muted>
+              {t.notContraception}
+            </AppText>
+          </>
+        ) : null}
       </Card>
 
       <Card title={formatLongDate(selectedDate)}>
