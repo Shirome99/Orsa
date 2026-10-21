@@ -4,6 +4,7 @@ import { View } from 'react-native';
 
 import { CalendarLegend, MonthCalendar } from '@/components/calendar/MonthCalendar';
 import { DaySummary } from '@/components/DaySummary';
+import { PeriodActions } from '@/components/PeriodActions';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -68,6 +69,7 @@ export default function CalendarScreen() {
           <AppText muted>{t.calendar.futureDay}</AppText>
         ) : (
           <>
+            <PeriodActions date={selectedDate} />
             <DaySummary log={data.logs[selectedDate]} emptyText={t.calendar.dayEmpty} />
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
               <Button

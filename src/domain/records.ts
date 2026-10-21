@@ -54,9 +54,24 @@ export function ongoingPeriod(periods: readonly PeriodEntry[], todayDate: ISODat
   return diffInDays(todayDate, latest.startDate) < MAX_OPEN_PERIOD_DAYS ? latest : undefined;
 }
 
+/**
+ * A start entered at most this many days before an existing period moves that
+ * period's start earlier (the user is correcting it) instead of creating a new one.
+ */
+export const START_CORRECTION_DAYS = 7;
+
 /** Records the first day of a period. No-op if the date already belongs to a recorded period. */
 export function startPeriod(data: OrsaData, date: ISODate, todayDate: ISODate, id = createId()): OrsaData {
   if (findPeriodContaining(data.periods, date, todayDate)) return data;
+  const corrected = data.periods.find(
+    (p) => p.startDate > date && diffInDays(p.startDate, date) <= START_CORRECTION_DAYS,
+  );
+  if (corrected) {
+    return {
+      ...data,
+      periods: sortedPeriods(data.periods.map((p) => (p === corrected ? { ...p, startDate: date } : p))),
+    };
+  }
   return { ...data, periods: sortedPeriods([...data.periods, { id, startDate: date }]) };
 }
 
@@ -109,4 +124,17 @@ export function saveDailyLog(data: OrsaData, log: DailyLogInput, now: Date = new
 
 export function updateSettings(data: OrsaData, patch: Partial<Settings>): OrsaData {
   return { ...data, settings: { ...data.settings, ...patch } };
+}
+
+export type PeriodDayStatus =
+  | { kind: 'future' }
+  | { kind: 'outside' }
+  | { kind: 'inside'; period: PeriodEntry; isStart: boolean; isRecordedEnd: boolean };
+
+/** How a given day relates to the recorded periods; drives which period actions are offered. */
+export function periodStatusOn(periods: readonly PeriodEntry[], date: ISODate, todayDate: ISODate): PeriodDayStatus {
+  if (date > todayDate) return { kind: 'future' };
+  const period = findPeriodContaining(periods, date, todayDate);
+  if (!period) return { kind: 'outside' };
+  return { kind: 'inside', period, isStart: period.startDate === date, isRecordedEnd: period.endDate === date };
 }

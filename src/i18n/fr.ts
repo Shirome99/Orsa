@@ -71,8 +71,6 @@ export const fr = {
     noCycleBody:
       "Indique le premier jour de tes règles pour commencer. Orsa calculera ton jour de cycle et des estimations qui s'affineront avec le temps.",
     cycleDay: (n: number) => `Jour ${n} du cycle`,
-    startPeriodToday: "Mes règles commencent aujourd'hui",
-    endPeriodToday: "Mes règles se terminent aujourd'hui",
     periodOngoing: (n: number) => (n === 1 ? 'Premier jour des règles' : `${n}e jour des règles`),
     quickActions: 'Actions rapides',
     logSymptoms: '+ Symptômes du jour',
@@ -81,6 +79,21 @@ export const fr = {
     summaryEmpty: "Rien n'a encore été noté aujourd'hui.",
     disclaimer:
       "Les estimations d'Orsa se basent uniquement sur les données que tu saisis. Elles ne remplacent pas l'avis d'un professionnel de santé.",
+  },
+  period: {
+    title: 'Règles',
+    startedOn: 'Mes règles ont commencé ce jour',
+    startToday: "Mes règles commencent aujourd'hui",
+    endedOn: 'Mes règles se sont terminées ce jour',
+    endToday: "Mes règles se terminent aujourd'hui",
+    undoEnd: 'Annuler la date de fin',
+    remove: 'Supprimer ces règles',
+    confirmRemove: 'Confirmer la suppression',
+    statusOutside: 'Aucunes règles enregistrées ce jour.',
+    statusStart: 'Premier jour de règles enregistré.',
+    statusInside: (n: number) => `${n}e jour de règles.`,
+    statusEnd: 'Dernier jour de règles enregistré.',
+    removeWarning: 'Les symptômes notés sur ces jours seront conservés.',
   },
   calendar: {
     previousMonth: 'Mois précédent',

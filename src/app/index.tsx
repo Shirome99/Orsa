@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import { View } from 'react-native';
 
 import { DaySummary } from '@/components/DaySummary';
+import { PeriodActions } from '@/components/PeriodActions';
 import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -17,20 +18,10 @@ import { useTheme } from '@/theme/ThemeProvider';
 export default function TodayScreen() {
   const router = useRouter();
   const { colors, spacing } = useTheme();
-  const { data, todayDate, startPeriod, endPeriod } = useOrsaData();
+  const { data, todayDate } = useOrsaData();
 
   const cycleStart = currentCycleStart(data.periods, todayDate);
   const ongoing = ongoingPeriod(data.periods, todayDate);
-
-  const periodButton = ongoing ? (
-    <Button
-      variant="secondary"
-      label={t.today.endPeriodToday}
-      onPress={() => endPeriod(ongoing.id, todayDate)}
-    />
-  ) : (
-    <Button label={t.today.startPeriodToday} onPress={() => startPeriod(todayDate)} />
-  );
 
   return (
     <Screen title={t.screens.today.title} subtitle={formatLongDate(todayDate)}>
@@ -51,9 +42,12 @@ export default function TodayScreen() {
         </Card>
       )}
 
+      <Card title={t.period.title}>
+        <PeriodActions date={todayDate} />
+      </Card>
+
       <Card title={t.today.quickActions}>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
-          {periodButton}
           <Button
             variant="ghost"
             label={t.today.logSymptoms}

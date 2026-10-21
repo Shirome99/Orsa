@@ -4,6 +4,7 @@ import {
   findPeriodContaining,
   ongoingPeriod,
   periodDisplayEnd,
+  periodStatusOn,
   removePeriod,
   reopenPeriod,
   saveDailyLog,
@@ -22,6 +23,18 @@ describe('periods', () => {
   it('does not create a second period inside an existing one', () => {
     const data = startPeriod(emptyData(), '2026-10-19', TODAY, 'p1');
     expect(startPeriod(data, TODAY, TODAY, 'p2')).toBe(data);
+  });
+
+  it('moves a period start earlier when a start is entered a few days before it', () => {
+    let data = startPeriod(emptyData(), TODAY, TODAY, 'p1');
+    data = startPeriod(data, '2026-10-19', TODAY, 'p2');
+    expect(data.periods).toEqual([{ id: 'p1', startDate: '2026-10-19' }]);
+  });
+
+  it('creates a separate period when the start is far from existing ones', () => {
+    let data = startPeriod(emptyData(), TODAY, TODAY, 'p1');
+    data = startPeriod(data, '2026-09-23', TODAY, 'p0');
+    expect(data.periods.map((p) => p.id)).toEqual(['p0', 'p1']);
   });
 
   it('keeps periods sorted by start date', () => {
@@ -79,5 +92,16 @@ describe('daily logs', () => {
     let data = saveDailyLog(emptyData(), { date: TODAY, mood: 'calm' }, now);
     data = saveDailyLog(data, { date: TODAY, note: '   ' }, now);
     expect(data.logs[TODAY]).toBeUndefined();
+  });
+});
+
+describe('periodStatusOn', () => {
+  const periods = [{ id: 'p', startDate: '2026-10-10', endDate: '2026-10-14' }];
+
+  it('describes days relative to recorded periods', () => {
+    expect(periodStatusOn(periods, '2026-10-22', TODAY)).toEqual({ kind: 'future' });
+    expect(periodStatusOn(periods, '2026-10-09', TODAY)).toEqual({ kind: 'outside' });
+    expect(periodStatusOn(periods, '2026-10-10', TODAY)).toMatchObject({ kind: 'inside', isStart: true, isRecordedEnd: false });
+    expect(periodStatusOn(periods, '2026-10-14', TODAY)).toMatchObject({ kind: 'inside', isStart: false, isRecordedEnd: true });
   });
 });
