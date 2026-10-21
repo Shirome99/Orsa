@@ -80,6 +80,16 @@ export const fr = {
     disclaimer:
       "Les estimations d'Orsa se basent uniquement sur les données que tu saisis. Elles ne remplacent pas l'avis d'un professionnel de santé.",
   },
+  journal: {
+    previousDay: 'Jour précédent',
+    nextDay: 'Jour suivant',
+    backToToday: "Aujourd'hui",
+    symptomsTitle: 'Symptômes',
+    unsaved: 'Modifications non enregistrées',
+    savedAt: 'Enregistré',
+    clear: 'Tout effacer',
+    hint: 'Note seulement ce que tu veux suivre : chaque élément est facultatif.',
+  },
   period: {
     title: 'Règles',
     startedOn: 'Mes règles ont commencé ce jour',
