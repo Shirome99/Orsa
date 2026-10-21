@@ -6,10 +6,11 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { ChoiceChips } from '@/components/ui/ChoiceChips';
 import { OptionCards } from '@/components/ui/OptionCards';
+import { ToggleChips } from '@/components/ui/ToggleChips';
 import { Screen } from '@/components/ui/Screen';
 import { useOrsaData } from '@/data/OrsaDataProvider';
 import { lifeModeOn } from '@/domain/records';
-import { CONTRACEPTION_METHODS, LIFE_MODES, type ThemePreference } from '@/domain/types';
+import { CONTRACEPTION_METHODS, LIFE_MODES, TRACKABLE_ITEMS, type ThemePreference } from '@/domain/types';
 import { t } from '@/i18n';
 import { formatShortDate } from '@/i18n/format';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -80,6 +81,19 @@ export default function SettingsScreen() {
             ))}
           </View>
         ) : null}
+      </Card>
+
+      <Card title={t.tracking.title}>
+        <AppText variant="caption" muted>
+          {t.tracking.periodsAlways}
+        </AppText>
+        <ToggleChips
+          accessibilityLabel={t.tracking.title}
+          options={TRACKABLE_ITEMS}
+          labels={t.tracking.items}
+          values={data.settings.trackedItems}
+          onChange={(trackedItems) => updateSettings({ trackedItems })}
+        />
       </Card>
 
       <Card title={t.settings.privacyTitle}>

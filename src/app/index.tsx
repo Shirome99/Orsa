@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Screen } from '@/components/ui/Screen';
 import { useOrsaData } from '@/data/OrsaDataProvider';
+import { careSuggestions } from '@/domain/careSuggestions';
 import { predictCycle } from '@/domain/cycle';
 import { diffInDays } from '@/domain/dates';
 import { ongoingPeriod } from '@/domain/records';
@@ -24,6 +25,10 @@ export default function TodayScreen() {
 
   const prediction = useMemo(() => predictCycle(data.periods, todayDate), [data.periods, todayDate]);
   const ongoing = ongoingPeriod(data.periods, todayDate);
+  const suggestions = useMemo(
+    () => careSuggestions(data.logs, data.periods, data.lifeModes, todayDate),
+    [data.logs, data.periods, data.lifeModes, todayDate],
+  );
 
   return (
     <Screen title={t.screens.today.title} subtitle={formatLongDate(todayDate)}>
@@ -64,6 +69,17 @@ export default function TodayScreen() {
       <Card title={t.today.summaryTitle}>
         <DaySummary log={data.logs[todayDate]} emptyText={t.today.summaryEmpty} />
       </Card>
+
+      {suggestions.length > 0 ? (
+        <Card tone="muted" title={t.care.title}>
+          {suggestions.map((s) => (
+            <AppText key={s.kind}>{t.care[s.kind](s.days)}</AppText>
+          ))}
+          <AppText variant="caption" muted>
+            {t.care.footer}
+          </AppText>
+        </Card>
+      ) : null}
 
       <AppText variant="caption" muted>
         {t.today.disclaimer}

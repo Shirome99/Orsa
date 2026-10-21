@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { View } from 'react-native';
 
 import { PeriodActions } from '@/components/PeriodActions';
@@ -13,17 +13,39 @@ import { TextField } from '@/components/ui/TextField';
 import { useOrsaData } from '@/data/OrsaDataProvider';
 import { addDays, isISODate, type ISODate } from '@/domain/dates';
 import type { DailyLogInput } from '@/domain/records';
-import { FLOW_LEVELS, MOODS, PAIN_MAX, PAIN_MIN, type DailyLog } from '@/domain/types';
+import {
+  ENERGY_MAX,
+  ENERGY_MIN,
+  FLOW_LEVELS,
+  MOODS,
+  PAIN_MAX,
+  PAIN_MIN,
+  SLEEP_QUALITIES,
+  TRACKABLE_ITEMS,
+  type DailyLog,
+  type TrackableItem,
+} from '@/domain/types';
 import { t } from '@/i18n';
 import { formatLongDate } from '@/i18n/format';
 import { useTheme } from '@/theme/ThemeProvider';
 
+const YES_NO = ['yes', 'no'] as const;
+const toYesNo = (value: boolean | undefined) => (value === undefined ? undefined : value ? 'yes' : 'no');
+const fromYesNo = (value: 'yes' | 'no' | undefined) => (value === undefined ? undefined : value === 'yes');
+
 function toDraft(date: ISODate, log: DailyLog | undefined): DailyLogInput {
-  return { date, flow: log?.flow, pain: log?.pain, mood: log?.mood, note: log?.note ?? '' };
+  const { updatedAt: _ignored, ...fields } = log ?? { date, updatedAt: '' };
+  return { ...fields, date, note: log?.note ?? '' };
 }
 
 function sameDraft(a: DailyLogInput, b: DailyLogInput): boolean {
-  return a.flow === b.flow && a.pain === b.pain && a.mood === b.mood && (a.note ?? '').trim() === (b.note ?? '').trim();
+  return TRACKABLE_ITEMS.every((item) =>
+    item === 'note' ? (a.note ?? '').trim() === (b.note ?? '').trim() : a[item] === b[item],
+  );
+}
+
+function hasValue(log: DailyLogInput, item: TrackableItem): boolean {
+  return item === 'note' ? Boolean(log.note?.trim()) : log[item] !== undefined;
 }
 
 export default function JournalScreen() {
@@ -46,7 +68,12 @@ export default function JournalScreen() {
 
   useEffect(() => setJustSaved(false), [date]);
 
-  const dirty = !sameDraft(draft, toDraft(date, savedLog));
+  const tracked = data.settings.trackedItems;
+  const savedDraft = toDraft(date, savedLog);
+  // An item no longer tracked stays editable on days where it was filled in.
+  const visibleItems = TRACKABLE_ITEMS.filter((item) => tracked.includes(item) || hasValue(savedDraft, item));
+
+  const dirty = !sameDraft(draft, savedDraft);
   const update = (patch: Partial<DailyLogInput>) => {
     setDraft((current) => ({ ...current, ...patch }));
     setJustSaved(false);
@@ -56,6 +83,89 @@ export default function JournalScreen() {
   const save = () => {
     saveDailyLog(draft);
     setJustSaved(true);
+  };
+
+  const clearAll = () =>
+    update(Object.fromEntries(TRACKABLE_ITEMS.map((item) => [item, item === 'note' ? '' : undefined])));
+
+  const fields: Record<TrackableItem, ReactNode> = {
+    flow: (
+      <ChoiceChips
+        accessibilityLabel={t.flow.label}
+        options={FLOW_LEVELS}
+        labels={t.flow.levels}
+        value={draft.flow}
+        onChange={(flow) => update({ flow })}
+      />
+    ),
+    pain: (
+      <ScaleSelector
+        accessibilityLabel={t.pain.label}
+        min={PAIN_MIN}
+        max={PAIN_MAX}
+        value={draft.pain}
+        onChange={(pain) => update({ pain })}
+        minLabel={t.pain.min}
+        maxLabel={t.pain.max}
+      />
+    ),
+    mood: (
+      <ChoiceChips
+        accessibilityLabel={t.mood.label}
+        options={MOODS}
+        labels={t.mood.values}
+        value={draft.mood}
+        onChange={(mood) => update({ mood })}
+      />
+    ),
+    energy: (
+      <ScaleSelector
+        accessibilityLabel={t.energy.label}
+        min={ENERGY_MIN}
+        max={ENERGY_MAX}
+        value={draft.energy}
+        onChange={(energy) => update({ energy })}
+        minLabel={t.energy.min}
+        maxLabel={t.energy.max}
+      />
+    ),
+    sleep: (
+      <ChoiceChips
+        accessibilityLabel={t.sleep.label}
+        options={SLEEP_QUALITIES}
+        labels={t.sleep.values}
+        value={draft.sleep}
+        onChange={(sleep) => update({ sleep })}
+      />
+    ),
+    hotFlashes: (
+      <ChoiceChips
+        accessibilityLabel={t.hotFlashes.label}
+        options={YES_NO}
+        labels={t.yesNo}
+        value={toYesNo(draft.hotFlashes)}
+        onChange={(v) => update({ hotFlashes: fromYesNo(v) })}
+      />
+    ),
+    nightSweats: (
+      <ChoiceChips
+        accessibilityLabel={t.nightSweats.label}
+        options={YES_NO}
+        labels={t.yesNo}
+        value={toYesNo(draft.nightSweats)}
+        onChange={(v) => update({ nightSweats: fromYesNo(v) })}
+      />
+    ),
+    note: (
+      <TextField
+        accessibilityLabel={t.note.label}
+        multiline
+        maxLength={1000}
+        placeholder={t.note.placeholder}
+        value={draft.note ?? ''}
+        onChangeText={(note) => update({ note })}
+      />
+    ),
   };
 
   return (
@@ -79,80 +189,61 @@ export default function JournalScreen() {
       </Card>
 
       <Card title={t.journal.symptomsTitle}>
-        <AppText variant="caption" muted>
-          {t.journal.hint}
-        </AppText>
-
-        <Field label={t.flow.label}>
-          <ChoiceChips
-            accessibilityLabel={t.flow.label}
-            options={FLOW_LEVELS}
-            labels={t.flow.levels}
-            value={draft.flow}
-            onChange={(flow) => update({ flow })}
-          />
-        </Field>
-
-        <Field label={t.pain.label}>
-          <ScaleSelector
-            accessibilityLabel={t.pain.label}
-            min={PAIN_MIN}
-            max={PAIN_MAX}
-            value={draft.pain}
-            onChange={(pain) => update({ pain })}
-            minLabel={t.pain.min}
-            maxLabel={t.pain.max}
-          />
-        </Field>
-
-        <Field label={t.mood.label}>
-          <ChoiceChips
-            accessibilityLabel={t.mood.label}
-            options={MOODS}
-            labels={t.mood.values}
-            value={draft.mood}
-            onChange={(mood) => update({ mood })}
-          />
-        </Field>
-
-        <Field label={t.note.label}>
-          <TextField
-            accessibilityLabel={t.note.label}
-            multiline
-            maxLength={1000}
-            placeholder={t.note.placeholder}
-            value={draft.note ?? ''}
-            onChangeText={(note) => update({ note })}
-          />
-        </Field>
-
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.md }}>
-          <Button label={t.common.save} onPress={save} disabled={!dirty} />
-          <Button
-            variant="ghost"
-            label={t.journal.clear}
-            onPress={() => update({ flow: undefined, pain: undefined, mood: undefined, note: '' })}
-          />
-          {dirty ? (
+        {visibleItems.length === 0 ? (
+          <>
+            <AppText muted>{t.journal.noneTracked}</AppText>
+            <View style={{ flexDirection: 'row' }}>
+              <Button variant="ghost" label={t.journal.chooseItems} onPress={() => router.navigate('/settings')} />
+            </View>
+          </>
+        ) : (
+          <>
             <AppText variant="caption" muted>
-              {t.journal.unsaved}
+              {t.journal.hint}
             </AppText>
-          ) : justSaved ? (
-            <AppText variant="label" color={colors.success} accessibilityLiveRegion="polite">
-              ✓ {t.journal.savedAt}
-            </AppText>
-          ) : null}
-        </View>
+
+            {visibleItems.map((item) => (
+              <Field
+                key={item}
+                label={t.tracking.items[item]}
+                hint={tracked.includes(item) ? undefined : t.journal.notTrackedAnymore}
+              >
+                {fields[item]}
+              </Field>
+            ))}
+
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.md }}>
+              <Button label={t.common.save} onPress={save} disabled={!dirty} />
+              <Button variant="ghost" label={t.journal.clear} onPress={clearAll} />
+              {dirty ? (
+                <AppText variant="caption" muted>
+                  {t.journal.unsaved}
+                </AppText>
+              ) : justSaved ? (
+                <AppText variant="label" color={colors.success} accessibilityLiveRegion="polite">
+                  ✓ {t.journal.savedAt}
+                </AppText>
+              ) : null}
+            </View>
+          </>
+        )}
       </Card>
     </Screen>
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
   const { spacing } = useTheme();
   return (
     <View style={{ gap: spacing.sm }}>
-      <AppText variant="label">{label}</AppText>
+      <AppText variant="label">
+        {label}
+        {hint ? (
+          <AppText variant="caption" muted>
+            {`  · ${hint}`}
+          </AppText>
+        ) : null}
+      </AppText>
       {children}
     </View>
   );

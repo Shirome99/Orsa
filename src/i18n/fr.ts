@@ -10,6 +10,7 @@ import type {
   FlowLevel,
   LifeMode,
   Mood,
+  SleepQuality,
   ThemePreference,
   TrackableItem,
 } from '@/domain/types';
@@ -69,6 +70,29 @@ export const fr = {
       tired: 'Fatiguée',
     } satisfies Record<Mood, string>,
   },
+  energy: {
+    label: 'Énergie',
+    min: 'Épuisée',
+    max: 'Pleine d’énergie',
+    value: (n: number) => `${n}/5`,
+  },
+  sleep: {
+    label: 'Sommeil',
+    values: { poor: 'Mauvais', fair: 'Moyen', good: 'Bon' } satisfies Record<SleepQuality, string>,
+  },
+  yesNo: { yes: 'Oui', no: 'Non' },
+  hotFlashes: { label: 'Bouffées de chaleur' },
+  nightSweats: { label: 'Sueurs nocturnes' },
+  care: {
+    title: 'À garder en tête',
+    strongPain: (n: number) =>
+      `Tu as noté des douleurs très fortes (8/10 ou plus) sur ${n} jours ces trois derniers mois. Des douleurs de cette intensité peuvent valoir la peine d’en parler à un·e professionnel·le de santé.`,
+    heavyFlow: (n: number) =>
+      `Tu as noté un flux abondant sur ${n} jours ces trois derniers mois. Si tes saignements te semblent très abondants, un·e professionnel·le de santé peut t’aider à faire le point.`,
+    longAbsence: (n: number) =>
+      `Aucune règle n’a été enregistrée depuis ${n} jours. Cela peut avoir de nombreuses explications ; si cela te questionne, un·e professionnel·le de santé peut t’aider.`,
+    footer: 'Ce sont des observations sur tes propres notes, pas un diagnostic.',
+  },
   note: {
     label: 'Note',
     placeholder: 'Quelque chose à retenir sur cette journée ?',
@@ -96,6 +120,9 @@ export const fr = {
     savedAt: 'Enregistré',
     clear: 'Tout effacer',
     hint: 'Note seulement ce que tu veux suivre : chaque élément est facultatif.',
+    noneTracked: 'Aucun symptôme n’est suivi pour l’instant. Tu peux en choisir dans les Réglages.',
+    chooseItems: 'Choisir les éléments suivis',
+    notTrackedAnymore: 'Plus suivi, mais renseigné ce jour-là',
   },
   period: {
     title: 'Règles',
