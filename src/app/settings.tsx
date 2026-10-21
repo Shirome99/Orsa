@@ -1,17 +1,14 @@
-import { StyleSheet, Text, View } from 'react-native';
-
+import { AppText } from '@/components/ui/AppText';
+import { Card } from '@/components/ui/Card';
+import { Screen } from '@/components/ui/Screen';
 import { t } from '@/i18n';
 
 export default function SettingsScreen() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{t.screens.settings.title}</Text>
-      <Text>{t.common.comingSoon}</Text>
-    </View>
+    <Screen title={t.screens.settings.title}>
+      <Card>
+        <AppText muted>{t.common.comingSoon}</AppText>
+      </Card>
+    </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 24, gap: 8 },
-  title: { fontSize: 28, fontWeight: '700' },
-});
