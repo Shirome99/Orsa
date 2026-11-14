@@ -52,9 +52,7 @@ npm run typecheck   # vérification TypeScript (tsc --noEmit)
 
 Premier MVP web (phases 0 à 9) terminé : onboarding, écran Aujourd'hui, calendrier, saisie des règles, journal de symptômes personnalisable, stockage local persistant, algorithme du cycle selon le mode de vie hormonal.
 
-- Roadmap complète et phase en cours : [`CLAUDE.md`](CLAUDE.md#roadmap)
-- Historique détaillé des modifications : [`JOURNAL.md`](JOURNAL.md)
-- Questions ouvertes : [`QUESTIONS.md`](QUESTIONS.md)
+Prochaines étapes : cycles irréguliers et confirmation de l'ovulation, SOPK, douleurs détaillées / endométriose, analyses et tendances, export / import des données, verrouillage et chiffrement local, PWA, puis passage au mobile (Android / iOS).
 
 ## Confidentialité
 

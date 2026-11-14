@@ -105,3 +105,9 @@ clue*.json
 !**/__tests__/**
 !**/__fixtures__/**
 !**/fixtures/**
+
+# Local working notes (kept on disk, never published)
+/CLAUDE.md
+/JOURNAL.md
+/PROMPT_DEMARRAGE.md
+/QUESTIONS.md
