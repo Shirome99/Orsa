@@ -42,3 +42,66 @@ yarn-error.*
 
 # test coverage
 coverage/
+
+# ---------------------------------------------------------------------------
+# Added before publishing to GitHub (private repo)
+# ---------------------------------------------------------------------------
+
+# Environment files (all variants; only a documented template may be committed)
+.env
+.env*
+!.env.example
+
+# Keys, certificates, keystores
+*.key
+*.pem
+*.crt
+*.cer
+*.der
+*.p8
+*.p12
+*.pfx
+*.jks
+*.keystore
+id_rsa*
+id_ed25519*
+google-services.json
+GoogleService-Info.plist
+credentials*.json
+service-account*.json
+
+# Logs
+*.log
+logs/
+pnpm-debug.log*
+lerna-debug.log*
+
+# OS / editor files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.swp
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Health data exports / reports (never commit real data).
+# Fictitious fixtures for tests stay allowed below.
+*.csv
+*.tsv
+*.pdf
+*.sqlite
+*.sqlite3
+*.db
+exports/
+reports/
+*export*.json
+*backup*.json
+orsa-*.json
+flo*.json
+clue*.json
+!**/__tests__/**
+!**/__fixtures__/**
+!**/fixtures/**
